@@ -4,6 +4,7 @@ import "github.com/Andromeeeda/Subtracker/internal/core/domain"
 
 type SubService interface {
 	CreateSubscription(title string,cost float64,date int) (*domain.Subscription,error)
+	GetAllSub() []*domain.Subscription
 }
 
 type SubHandler struct {

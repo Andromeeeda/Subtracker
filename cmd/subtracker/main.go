@@ -20,6 +20,7 @@ func main() {
 	SubHandler := subscriptionhandlers.NewSubHandler(SubService)
 
 	router.Path("/subscriptions").Methods("POST").HandlerFunc(SubHandler.CreateSub)
+	router.Path("/subscriptions").Methods("GET").HandlerFunc(SubHandler.GetAllSub)
 
 	if err := http.ListenAndServe(":8081", router); err != nil {
 		fmt.Println("fail to listen server")
