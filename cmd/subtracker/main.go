@@ -23,6 +23,7 @@ func main() {
 	router.Path("/subscriptions").Methods("GET").HandlerFunc(SubHandler.GetAllSub)
 	router.Path("/subscriptions/{id}").Methods("GET").HandlerFunc(SubHandler.GetSub)
 	router.Path("/subscriptions/{id}").Methods("PATCH").HandlerFunc(SubHandler.ChangeSub)
+	router.Path("/subscriptions/{id}").Methods("DELETE").HandlerFunc(SubHandler.DeleteSub)
 
 	if err := http.ListenAndServe(":8081", router); err != nil {
 		fmt.Println("fail to listen server")

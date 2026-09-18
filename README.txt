@@ -64,7 +64,7 @@
 
    DELETE /subscriptions/{id} - удалить подписку 
    -Success(200): `{}`
-   -Erorr(404,500): `{"error": "string"}` 
+   -Erorr(400,404,500): `{"error": "string"}` 
 
    GET /subscriptions/stats  - получить статистику по подпискам 
 

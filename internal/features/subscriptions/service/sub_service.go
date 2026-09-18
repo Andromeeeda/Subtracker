@@ -10,6 +10,7 @@ type SubRepository interface {
 	GetAllSub() []*subrep.SubscriptionModel
 	GetSubscription(int) (*subrep.SubscriptionModel,error)
 	ChangeSub(id int, title*string,cost *float64,date *int) (*subrep.SubscriptionModel,error)
+	DeleteSub(id int) error 
 }
 
 type SubService struct {
@@ -80,3 +81,13 @@ func(s *SubService) ChangeSub(id int,title *string,cost *float64,date *int) (*do
 
 	return ChSubDomain,nil 
 }
+
+func(s *SubService) DeleteSub(id int) error {
+	if err := s.subRepository.DeleteSub(id); err != nil {
+		return err 
+	}
+
+	return nil 
+}
+
+

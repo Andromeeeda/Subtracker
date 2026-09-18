@@ -7,6 +7,7 @@ type SubService interface {
 	GetAllSub() []*domain.Subscription
 	GetSub(int) (*domain.Subscription,error)
 	ChangeSub(id int,title *string,cost *float64,date *int) (*domain.Subscription,error)
+	DeleteSub(id int) error
 }
 
 type SubHandler struct {

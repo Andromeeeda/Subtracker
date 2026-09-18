@@ -52,33 +52,43 @@ func (r *SubRepository) GetAllSub() []*subrep.SubscriptionModel {
 	return result
 }
 
-func(r *SubRepository) GetSubscription(id int) (*subrep.SubscriptionModel,error) {
-	sub,ok := r.subscriptions[id]
+func (r *SubRepository) GetSubscription(id int) (*subrep.SubscriptionModel, error) {
+	sub, ok := r.subscriptions[id]
 	if !ok {
-		return nil,errors.New("Not found")
+		return nil, errors.New("Not found")
 	}
 
-	return sub,nil
+	return sub, nil
 }
 
-func(r* SubRepository) ChangeSub(id int,title *string,cost *float64,date *int) (*subrep.SubscriptionModel,error) {
+func (r *SubRepository) ChangeSub(id int, title *string, cost *float64, date *int) (*subrep.SubscriptionModel, error) {
 
-	m,ok := r.subscriptions[id] 
+	m, ok := r.subscriptions[id]
 	if !ok {
-		return nil,errors.New("Not found")
+		return nil, errors.New("Not found")
 	}
 
 	if title != nil {
-		m.Title = *title 
+		m.Title = *title
 	}
 
 	if cost != nil {
-		m.Cost = *cost 
+		m.Cost = *cost
 	}
 
 	if date != nil {
-		m.Date = *date 
+		m.Date = *date
 	}
 
-	return m,nil 
+	return m, nil
+}
+
+func (r *SubRepository) DeleteSub(id int) error {
+	if _, ok := r.subscriptions[id]; !ok {
+		return errors.New("Not Found")
+	}
+
+	delete(r.subscriptions,id)
+	
+	return nil 
 }
