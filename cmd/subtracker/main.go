@@ -21,6 +21,7 @@ func main() {
 
 	router.Path("/subscriptions").Methods("POST").HandlerFunc(SubHandler.CreateSub)
 	router.Path("/subscriptions").Methods("GET").HandlerFunc(SubHandler.GetAllSub)
+	router.Path("/subscriptions/{id}").Methods("GET").HandlerFunc(SubHandler.GetSub)
 
 	if err := http.ListenAndServe(":8081", router); err != nil {
 		fmt.Println("fail to listen server")

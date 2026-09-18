@@ -51,3 +51,12 @@ func (r *SubRepository) GetAllSub() []*subrep.SubscriptionModel {
 
 	return result
 }
+
+func(r *SubRepository) GetSubscription(id int) (*subrep.SubscriptionModel,error) {
+	sub,ok := r.subscriptions[id]
+	if !ok {
+		return nil,errors.New("Not found")
+	}
+
+	return sub,nil
+}
