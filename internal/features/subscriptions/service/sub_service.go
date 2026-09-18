@@ -9,6 +9,7 @@ type SubRepository interface {
 	AddSubscription(title string, cost float64, date int) (*subrep.SubscriptionModel, error)
 	GetAllSub() []*subrep.SubscriptionModel
 	GetSubscription(int) (*subrep.SubscriptionModel,error)
+	ChangeSub(id int, title*string,cost *float64,date *int) (*subrep.SubscriptionModel,error)
 }
 
 type SubService struct {
@@ -66,4 +67,16 @@ func (s* SubService) GetSub(id int) (*domain.Subscription,error) {
 
 	return Sub,nil 
 
+}
+
+func(s *SubService) ChangeSub(id int,title *string,cost *float64,date *int) (*domain.Subscription,error){
+
+	ChSub,err :=  s.subRepository.ChangeSub(id,title,cost,date)
+	if err != nil {
+		return nil,err 
+	}
+
+	ChSubDomain := toDomain(ChSub)
+
+	return ChSubDomain,nil 
 }

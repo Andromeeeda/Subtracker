@@ -58,7 +58,7 @@
   
  PATCH /subscriptions/{id}  - изменить подписку частично
  - Body: `{"title": string}`  //как пример
- -Succed(200): {"id": "uuid" , "title": string} 
+ -Succed(200): {"id": "uuid" , "title": string,"cost":"float","date": "date"} 
  - Error(400,404,500): `{"error": "string"}
 
 

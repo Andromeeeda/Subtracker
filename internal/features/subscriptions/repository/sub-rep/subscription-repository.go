@@ -60,3 +60,25 @@ func(r *SubRepository) GetSubscription(id int) (*subrep.SubscriptionModel,error)
 
 	return sub,nil
 }
+
+func(r* SubRepository) ChangeSub(id int,title *string,cost *float64,date *int) (*subrep.SubscriptionModel,error) {
+
+	m,ok := r.subscriptions[id] 
+	if !ok {
+		return nil,errors.New("Not found")
+	}
+
+	if title != nil {
+		m.Title = *title 
+	}
+
+	if cost != nil {
+		m.Cost = *cost 
+	}
+
+	if date != nil {
+		m.Date = *date 
+	}
+
+	return m,nil 
+}
