@@ -58,13 +58,13 @@
   
  PATCH /subscriptions/{id}  - изменить подписку частично
  - Body: `{"title": string}`  //как пример
- -Succed(200): {"id": "uuid" , "title": string} 
+ -Succed(200): {"id": "uuid" , "title": string,"cost":"float","date": "date"} 
  - Error(400,404,500): `{"error": "string"}
 
 
    DELETE /subscriptions/{id} - удалить подписку 
    -Success(200): `{}`
-   -Erorr(404,500): `{"error": "string"}` 
+   -Erorr(400,404,500): `{"error": "string"}` 
 
    GET /subscriptions/stats  - получить статистику по подпискам 
 
