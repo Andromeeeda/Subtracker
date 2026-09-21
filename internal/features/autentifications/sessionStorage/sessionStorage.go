@@ -11,9 +11,9 @@ type SessionStorage struct {
 	sessions map[string]string
 }
 
-func NewSessionStorage(sessions map[string]string) *SessionStorage {
+func NewSessionStorage() *SessionStorage {
 	return &SessionStorage{
-		sessions: sessions,
+		sessions: make(map[string]string),
 	}
 }
 

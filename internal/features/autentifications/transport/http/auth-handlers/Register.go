@@ -42,9 +42,10 @@ func (h *AuthHAndler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println("The user has successfully registered.")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string {
-		"successfully text": "succesfylly added",
+		"successfully text": "succesfylly registered",
 	})
 
 }
