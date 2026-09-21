@@ -18,12 +18,12 @@
 # Аутентификация
   - **POST /auth/register** - регистрация нового пользователя
   - Body: `{"username": "string", "password": "string"}`
-  - Success (201): `{"token": "string"}`
+  - Success (201): `{"succesfully text": "string"}`
   - Error (400/409): `{"error": "string"}`
 
 - **POST /auth/login** - вход пользователя
   - Body: `{"username": "string", "password": "string"}`
-  - Success (200): `{"token": "string"}`
+  - Success (200): `{"session_id": "string"}`
   - Error (400/401): `{"error": "string"}
 
   # CRUD операции 
