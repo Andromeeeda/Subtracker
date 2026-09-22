@@ -18,12 +18,12 @@
 # Аутентификация
   - **POST /auth/register** - регистрация нового пользователя
   - Body: `{"username": "string", "password": "string"}`
-  - Success (201): `{"token": "string"}`
+  - Success (201): `{"succesfully text": "string"}`
   - Error (400/409): `{"error": "string"}`
 
 - **POST /auth/login** - вход пользователя
   - Body: `{"username": "string", "password": "string"}`
-  - Success (200): `{"token": "string"}`
+  - Success (200): `{"session_id": "string"}`
   - Error (400/401): `{"error": "string"}
 
   # CRUD операции 
@@ -69,7 +69,16 @@
    GET /subscriptions/stats  - получить статистику по подпискам 
 
 
+  Реализовать фичи:
+  1. middleware для аутентификации и прочего 
+  2. Дописать круды для пользователей 
+  3. Сделать логи 
+  4. Чуть переделать обработку ошибок 
+  5. Сделать бд PostgreSQL
+  6. Обернуть в докер и разработать окружение проекта 
+  7. Написать фронтенд 
 
+  
 
 
 
