@@ -28,3 +28,11 @@ func (s *SessionStorage) Create(userId string) string {
 	return sessionId
 }
 
+func (s *SessionStorage) Get(sessionId string) (string,bool) {
+	session,ok := s.sessions[sessionId]
+	if !ok {
+		return "",false 
+	}
+
+	return session,true 
+}
