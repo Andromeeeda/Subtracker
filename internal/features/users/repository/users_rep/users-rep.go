@@ -1,6 +1,10 @@
 package usersrepository
 
-import "errors"
+import (
+	"errors"
+
+	hashpassword "github.com/Andromeeeda/Subtracker/pkg/HashPassword"
+)
 
 type UsersRep struct {
 	users map[string]*User
@@ -37,4 +41,42 @@ func(r *UsersRep) ExistsByUserName(username string) bool {
 	_,exists := r.users[username]
 
 	return exists
+}
+
+func(r *UsersRep) FindByUserID(userID string) (*User,error) {
+	for _, user := range r.users {
+		if user.User_id == userID{
+			return user,nil
+		}
+	}
+
+	return nil, errors.New("Not Found")
+}
+
+func(r *UsersRep) ChangeUserPassword(userID string,newPassword string) error {
+
+	newHashPassword,err := hashpassword.Hash(newPassword)
+	if err != nil {
+		return err 
+	}
+
+	user,err := r.FindByUserID(userID)
+	if err != nil {
+		return err 
+	}
+
+	user.HashPassword = newHashPassword
+
+	return nil 
+}
+
+func(r *UsersRep) DeleteUser(userID string) error {
+
+	for _, user := range r.users {
+		if user.User_id == userID{
+			delete(r.users,userID)
+		}
+	}
+
+	return nil 
 }

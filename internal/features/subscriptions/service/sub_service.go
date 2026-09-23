@@ -49,6 +49,7 @@ func (s *SubService) GetAllSub(userID string) []*domain.Subscription {
 	for _, m := range models {
 		result = append(result, &domain.Subscription{
 			ID:    m.ID,
+			User_id: userID,
 			Title: m.Title,
 			Cost:  m.Cost,
 			Date:  m.Date,
