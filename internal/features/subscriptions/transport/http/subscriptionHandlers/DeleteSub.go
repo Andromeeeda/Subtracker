@@ -8,10 +8,18 @@ import (
 	"time"
 
 	"github.com/Andromeeeda/Subtracker/internal/core/errors"
+	"github.com/Andromeeeda/Subtracker/internal/core/transport/http/middleware"
 	"github.com/gorilla/mux"
 )
 
 func (h *SubHandler) DeleteSub(w http.ResponseWriter, r *http.Request) {
+
+	userID, ok := middleware.UserIDFromContext(r.Context())
+	if !ok {
+		http.Error(w, "unathorized", http.StatusUnauthorized)
+		return
+	}
+
 	vars := mux.Vars(r)
 	idStr := vars["id"]
 
@@ -28,7 +36,7 @@ func (h *SubHandler) DeleteSub(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.subService.DeleteSub(id); err != nil {
+	if err := h.subService.DeleteSub(userID,id); err != nil {
 		errDto := &errors.ErrorsDTO{
 			Error: err.Error(),
 			Time:  time.Now(),
@@ -39,7 +47,7 @@ func (h *SubHandler) DeleteSub(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-	
+
 	fmt.Println("subcription removed!")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[int]string{})

@@ -30,9 +30,9 @@
   # Операции над пользователями 
   - GET /users/me - получить пользователя
   - Success (200): `{"id","username",}`
-  - Error (401)
+  - Error (400,401,500)
 
-   - POST/users/me/change_password - изменение пароля с проверкой 
+   - POST/users/me/password - изменение пароля с проверкой 
   - Body: `{"current_password" : "string", "new_password": "string"}
   - Success (200): `{"{}"}
   - Error (400,401): `{"error": "string"}
@@ -77,6 +77,9 @@
   5. Сделать бд PostgreSQL
   6. Обернуть в докер и разработать окружение проекта 
   7. Написать фронтенд 
+
+  //протестировать GET /subscriptions там чуть проблема 
+  //в DELETE user нужно проверить удаляется ли сессия так как сам аккаунт по сути удаляется 
 
   
 

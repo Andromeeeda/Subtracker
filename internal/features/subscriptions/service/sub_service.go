@@ -6,11 +6,11 @@ import (
 )
 
 type SubRepository interface {
-	AddSubscription(title string, cost float64, date int) (*subrep.SubscriptionModel, error)
-	GetAllSub() []*subrep.SubscriptionModel
-	GetSubscription(int) (*subrep.SubscriptionModel,error)
-	ChangeSub(id int, title*string,cost *float64,date *int) (*subrep.SubscriptionModel,error)
-	DeleteSub(id int) error 
+	AddSubscription(userID string,title string, cost float64, date int) (*subrep.SubscriptionModel, error)
+	GetAllSub(userID string) []*subrep.SubscriptionModel
+	GetSubscription(userID string, id int) (*subrep.SubscriptionModel,error)
+	ChangeSub(userID string,id int, title*string,cost *float64,date *int) (*subrep.SubscriptionModel,error)
+	DeleteSub(userID string,id int) error 
 }
 
 type SubService struct {
@@ -23,15 +23,16 @@ func NewSubService(subRepository SubRepository) *SubService {
 	}
 }
 
-func (s *SubService) CreateSubscription(title string, cost float64, date int) (*domain.Subscription, error) {
+func (s *SubService) CreateSubscription(userID string,title string, cost float64, date int) (*domain.Subscription, error) {
 
-	sub, err := s.subRepository.AddSubscription(title, cost, date)
+	sub, err := s.subRepository.AddSubscription(userID,title, cost, date)
 	if err != nil {
 		return nil, err
 	}
 
 	return &domain.Subscription{
 		ID:    sub.ID,
+		User_id: userID,
 		Title: title,
 		Cost:  cost,
 		Date:  date,
@@ -39,15 +40,16 @@ func (s *SubService) CreateSubscription(title string, cost float64, date int) (*
 
 }
 
-func (s *SubService) GetAllSub() []*domain.Subscription {
+func (s *SubService) GetAllSub(userID string) []*domain.Subscription {
 
-	models := s.subRepository.GetAllSub()
+	models := s.subRepository.GetAllSub(userID)
 
 	result := make([]*domain.Subscription,0,len(models))
 
 	for _, m := range models {
 		result = append(result, &domain.Subscription{
 			ID:    m.ID,
+			User_id: userID,
 			Title: m.Title,
 			Cost:  m.Cost,
 			Date:  m.Date,
@@ -57,9 +59,9 @@ func (s *SubService) GetAllSub() []*domain.Subscription {
 
 }
 
-func (s* SubService) GetSub(id int) (*domain.Subscription,error) {
+func (s* SubService) GetSub(userID string,id int) (*domain.Subscription,error) {
 
-	sub,err := s.subRepository.GetSubscription(id)
+	sub,err := s.subRepository.GetSubscription(userID,id)
 	if err != nil {
 		return nil,err
 	}
@@ -70,9 +72,9 @@ func (s* SubService) GetSub(id int) (*domain.Subscription,error) {
 
 }
 
-func(s *SubService) ChangeSub(id int,title *string,cost *float64,date *int) (*domain.Subscription,error){
+func(s *SubService) ChangeSub(userID string,id int,title *string,cost *float64,date *int) (*domain.Subscription,error){
 
-	ChSub,err :=  s.subRepository.ChangeSub(id,title,cost,date)
+	ChSub,err :=  s.subRepository.ChangeSub(userID,id,title,cost,date)
 	if err != nil {
 		return nil,err 
 	}
@@ -82,8 +84,8 @@ func(s *SubService) ChangeSub(id int,title *string,cost *float64,date *int) (*do
 	return ChSubDomain,nil 
 }
 
-func(s *SubService) DeleteSub(id int) error {
-	if err := s.subRepository.DeleteSub(id); err != nil {
+func(s *SubService) DeleteSub(userID string,id int) error {
+	if err := s.subRepository.DeleteSub(userID,id); err != nil {
 		return err 
 	}
 

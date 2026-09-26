@@ -18,11 +18,11 @@ func NewSubRep() *SubRepository {
 	}
 }
 
-func (r *SubRepository) AddSubscription(title string, cost float64, date int) (*subrep.SubscriptionModel, error) {
+func (r *SubRepository) AddSubscription(userID string, title string, cost float64, date int) (*subrep.SubscriptionModel, error) {
 
 	//Проверка на уникальность по названию
 	for _, s := range r.subscriptions {
-		if s.Title == title {
+		if s.Title == title && s.User_id == userID {
 			return nil, errors.New("subscription with this title already exist!")
 		}
 	}
@@ -30,10 +30,11 @@ func (r *SubRepository) AddSubscription(title string, cost float64, date int) (*
 	r.NextID++
 
 	sub := &subrep.SubscriptionModel{
-		ID:    r.NextID,
-		Title: title,
-		Cost:  cost,
-		Date:  date,
+		ID:      r.NextID,
+		User_id: userID,
+		Title:   title,
+		Cost:    cost,
+		Date:    date,
 	}
 
 	r.subscriptions[r.NextID] = sub
@@ -41,30 +42,40 @@ func (r *SubRepository) AddSubscription(title string, cost float64, date int) (*
 	return sub, nil
 }
 
-func (r *SubRepository) GetAllSub() []*subrep.SubscriptionModel {
+func (r *SubRepository) GetAllSub(userID string) []*subrep.SubscriptionModel {
 
 	result := make([]*subrep.SubscriptionModel, 0, len(r.subscriptions))
 
 	for _, s := range r.subscriptions {
-		result = append(result, s)
+		if s.User_id == userID {
+			result = append(result, s)
+		}
 	}
 
 	return result
 }
 
-func (r *SubRepository) GetSubscription(id int) (*subrep.SubscriptionModel, error) {
+func (r *SubRepository) GetSubscription(userID string, id int) (*subrep.SubscriptionModel, error) {
 	sub, ok := r.subscriptions[id]
 	if !ok {
+		return nil, errors.New("Not found")
+	}
+
+	if sub.User_id != userID {
 		return nil, errors.New("Not found")
 	}
 
 	return sub, nil
 }
 
-func (r *SubRepository) ChangeSub(id int, title *string, cost *float64, date *int) (*subrep.SubscriptionModel, error) {
+func (r *SubRepository) ChangeSub(userID string, id int, title *string, cost *float64, date *int) (*subrep.SubscriptionModel, error) {
 
 	m, ok := r.subscriptions[id]
 	if !ok {
+		return nil, errors.New("Not found")
+	}
+
+	if m.User_id != userID {
 		return nil, errors.New("Not found")
 	}
 
@@ -83,12 +94,17 @@ func (r *SubRepository) ChangeSub(id int, title *string, cost *float64, date *in
 	return m, nil
 }
 
-func (r *SubRepository) DeleteSub(id int) error {
-	if _, ok := r.subscriptions[id]; !ok {
+func (r *SubRepository) DeleteSub(userID string, id int) error {
+	sub, ok := r.subscriptions[id]
+	if !ok {
 		return errors.New("Not Found")
 	}
 
-	delete(r.subscriptions,id)
-	
-	return nil 
+	if sub.User_id != userID {
+		return errors.New("Not Found")
+	}
+
+	delete(r.subscriptions, id)
+
+	return nil
 }

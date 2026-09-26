@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Andromeeeda/Subtracker/internal/core/errors"
+	"github.com/Andromeeeda/Subtracker/internal/core/transport/http/middleware"
 	"github.com/gorilla/mux"
 )
 
@@ -25,6 +26,13 @@ type ChangeSubResponce struct {
 }
 
 func (h *SubHandler) ChangeSub(w http.ResponseWriter, r *http.Request) {
+
+	userID, ok := middleware.UserIDFromContext(r.Context())
+	if !ok {
+		http.Error(w, "unathorized", http.StatusUnauthorized)
+		return
+	}
+
 	vars := mux.Vars(r)
 	idStr := vars["id"]
 
@@ -54,7 +62,7 @@ func (h *SubHandler) ChangeSub(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ChangeSub,err := h.subService.ChangeSub(id,&changeSub.Title,&changeSub.Cost,&changeSub.Date)
+	ChangeSub, err := h.subService.ChangeSub(userID,id, &changeSub.Title, &changeSub.Cost, &changeSub.Date)
 	if err != nil {
 		errDto := &errors.ErrorsDTO{
 			Error: err.Error(),
@@ -68,10 +76,10 @@ func (h *SubHandler) ChangeSub(w http.ResponseWriter, r *http.Request) {
 	}
 
 	changeSubResponce := &ChangeSubResponce{
-		ID: ChangeSub.ID,
+		ID:    ChangeSub.ID,
 		Title: ChangeSub.Title,
-		Cost: ChangeSub.Cost,
-		Date: ChangeSub.Date,
+		Cost:  ChangeSub.Cost,
+		Date:  ChangeSub.Date,
 	}
 
 	w.WriteHeader(http.StatusOK)

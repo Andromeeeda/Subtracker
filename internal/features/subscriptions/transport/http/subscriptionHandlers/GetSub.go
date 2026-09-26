@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Andromeeeda/Subtracker/internal/core/errors"
+	"github.com/Andromeeeda/Subtracker/internal/core/transport/http/middleware"
 	"github.com/gorilla/mux"
 )
 
@@ -20,6 +21,12 @@ type GetSubResponce struct {
 
 func (h *SubHandler) GetSub(w http.ResponseWriter, r *http.Request) {
 
+	userID, ok := middleware.UserIDFromContext(r.Context())
+	if !ok {
+		http.Error(w, "unathorized", http.StatusUnauthorized)
+		return
+	}
+
 	vars := mux.Vars(r)
 	idStr := vars["id"]
 
@@ -30,30 +37,30 @@ func (h *SubHandler) GetSub(w http.ResponseWriter, r *http.Request) {
 			Time:  time.Now(),
 		}
 
-		fmt.Println("Error!",errDto)
-		http.Error(w,errors.ErrorsDtoToString(errDto),http.StatusBadRequest)
+		fmt.Println("Error!", errDto)
+		http.Error(w, errors.ErrorsDtoToString(errDto), http.StatusBadRequest)
 
-		return 
+		return
 	}
 
-	sub,err :=h.subService.GetSub(id)
+	sub, err := h.subService.GetSub(userID,id)
 	if err != nil {
 		errDto := &errors.ErrorsDTO{
 			Error: err.Error(),
 			Time:  time.Now(),
 		}
 
-		fmt.Println("Error!",errDto)
-		http.Error(w,errors.ErrorsDtoToString(errDto),http.StatusNotFound)
+		fmt.Println("Error!", errDto)
+		http.Error(w, errors.ErrorsDtoToString(errDto), http.StatusNotFound)
 
-		return 
+		return
 	}
 
 	subResponce := GetSubResponce{
-		ID: sub.ID,
+		ID:    sub.ID,
 		Title: sub.Title,
-		Cost: sub.Cost,
-		Date:sub.Date,
+		Cost:  sub.Cost,
+		Date:  sub.Date,
 	}
 
 	fmt.Println("subscription showed")
