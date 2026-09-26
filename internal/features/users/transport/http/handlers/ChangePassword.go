@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Andromeeeda/Subtracker/internal/core/errors"
+	"github.com/Andromeeeda/Subtracker/internal/core/errors/common"
 	"github.com/Andromeeeda/Subtracker/internal/core/transport/http/middleware"
 )
 
@@ -25,25 +25,25 @@ func (h *UserHandler) ChangeUserPassword(w http.ResponseWriter, r *http.Request)
 
 	var changeUserPassword ChangeUserPaswwordRequest
 	if err := json.NewDecoder(r.Body).Decode(&changeUserPassword); err != nil {
-		errDto := &errors.ErrorsDTO{
+		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),
 			Time:  time.Now(),
 		}
 
 		fmt.Println("Error!", errDto)
-		http.Error(w, errors.ErrorsDtoToString(errDto), http.StatusBadRequest)
+		http.Error(w, common_errors.ErrorsDtoToString(errDto), http.StatusBadRequest)
 
 		return
 	}
 
 	if err := h.userService.ChangeUserPassword(userID, changeUserPassword.Current_Password, changeUserPassword.New_Password); err != nil {
-		errDto := &errors.ErrorsDTO{
+		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),
 			Time:  time.Now(),
 		}
 
 		fmt.Println("Error!", errDto)
-		http.Error(w, errors.ErrorsDtoToString(errDto), http.StatusBadRequest)
+		http.Error(w, common_errors.ErrorsDtoToString(errDto), http.StatusBadRequest)
 
 		return
 	}

@@ -19,28 +19,28 @@
   - **POST /auth/register** - регистрация нового пользователя
   - Body: `{"username": "string", "password": "string"}`
   - Success (201): `{"succesfully text": "string"}`
-  - Error (400/409): `{"error": "string"}`
+  - Error (400/409,500): `{"error": "string"}`
 
 - **POST /auth/login** - вход пользователя
   - Body: `{"username": "string", "password": "string"}`
   - Success (200): `{"session_id": "string"}`
-  - Error (400/401): `{"error": "string"}
+  - Error (400/401,500): `{"error": "string"}
 
   # CRUD операции 
   # Операции над пользователями 
   - GET /users/me - получить пользователя
   - Success (200): `{"id","username",}`
-  - Error (400,401,500)
+  - Error (401,500)
 
    - POST/users/me/password - изменение пароля с проверкой 
   - Body: `{"current_password" : "string", "new_password": "string"}
   - Success (200): `{"{}"}
-  - Error (400,401): `{"error": "string"}
+  - Error (400,401,500): `{"error": "string"}
 
   - DELETE /users/me - удаление пользователя 
   - Body: `{"password" : "string}
   - Success(200): `{}`
-  - Error(400,401):  `{"error": "string"}
+  - Error(400,401,500):  `{"error": "string"}
 
   # Операции над подписками 
   GET /subscriptions - получить все подписки 
@@ -48,12 +48,12 @@
 
   GET /subscriptions/{id} - получить конкретную подписку 
   - Success(200), `{"id": "uuid", "title": "string", "cost": 15.99, "date": "2026-10-01"}`,
-  - Erorr(400,401,404):  `{"error": "string"}
+  - Erorr(400,401,404,500):  `{"error": "string"}
 
   POST /subscriptions - создать подписку 
   Body: `{"title":"string","cost":"float","date": "date"}`
   Succed(201): `{"id":"uuid","title":"string","cost":"float","date": "date"}`
-  Error(400,500):  `{"error": "string"}
+  Error(400,409,500):  `{"error": "string"}
 
   
  PATCH /subscriptions/{id}  - изменить подписку частично

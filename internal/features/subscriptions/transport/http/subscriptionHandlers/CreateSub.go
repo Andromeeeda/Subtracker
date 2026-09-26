@@ -2,11 +2,12 @@ package subscriptionhandlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/Andromeeeda/Subtracker/internal/core/errors"
+	common_errors "github.com/Andromeeeda/Subtracker/internal/core/errors/common"
 	"github.com/Andromeeeda/Subtracker/internal/core/transport/http/middleware"
 )
 
@@ -27,34 +28,39 @@ func (h *SubHandler) CreateSub(w http.ResponseWriter, r *http.Request) {
 
 	userID, ok := middleware.UserIDFromContext(r.Context())
 	if !ok {
-		http.Error(w,"unathorized",http.StatusUnauthorized)
+		http.Error(w, "unathorized", http.StatusUnauthorized)
 		return
 	}
 
 	var createSubRequest CreateSubRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&createSubRequest); err != nil {
-		errDto := errors.ErrorsDTO{
+		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),
 			Time:  time.Now(),
 		}
 
 		fmt.Println("Error!", errDto)
 
-		http.Error(w, errors.ErrorsDtoToString(&errDto), http.StatusBadRequest)
+		http.Error(w, common_errors.ErrorsDtoToString(errDto), http.StatusBadRequest)
 
 		return
 	}
 
-	Subscription, err := h.subService.CreateSubscription(userID,createSubRequest.Title, createSubRequest.Cost, createSubRequest.Date)
+	Subscription, err := h.subService.CreateSubscription(userID, createSubRequest.Title, createSubRequest.Cost, createSubRequest.Date)
 	if err != nil {
-		errDto := &errors.ErrorsDTO{
+		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),
 			Time:  time.Now(),
 		}
 
-		fmt.Println("Error!", errDto)
-		http.Error(w, errors.ErrorsDtoToString(errDto), http.StatusBadRequest)
+		if errors.Is(err, common_errors.ErrConflict) {
+			fmt.Println("Error!", errDto)
+			http.Error(w, common_errors.ErrorsDtoToString(errDto), http.StatusConflict)
+		} else {
+			fmt.Println("Error!", errDto)
+			http.Error(w, common_errors.ErrorsDtoToString(errDto), http.StatusInternalServerError)
+		}
 
 		return
 	}

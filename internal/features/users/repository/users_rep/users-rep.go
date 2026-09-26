@@ -1,8 +1,9 @@
 package usersrepository
 
 import (
-	"errors"
+	"fmt"
 
+	common_errors "github.com/Andromeeeda/Subtracker/internal/core/errors/common"
 	hashpassword "github.com/Andromeeeda/Subtracker/pkg/HashPassword"
 )
 
@@ -18,65 +19,64 @@ func NewUsersRep() *UsersRep {
 
 func (r *UsersRep) Create(user *User) error {
 
-	
-    if _, exists := r.users[user.Username]; exists {
-        return errors.New("username already exists")
-    }
+	if _, exists := r.users[user.Username]; exists {
+		return fmt.Errorf("username already exists %w", common_errors.ErrConflict)
+	}
 
-    r.users[user.Username] = user
-    return nil
-	
+	r.users[user.Username] = user
+	return nil
+
 }
 
 func (r *UsersRep) FindByUSersName(username string) (*User, error) {
 	user, ok := r.users[username]
 	if !ok {
-		return nil, errors.New("Error while receiving user data. Incorrect username")
+		return nil, fmt.Errorf("Error while receiving user data. Incorrect username %w", common_errors.ErrBadRequest)
 	}
 
-	return user,nil 
+	return user, nil
 }
 
-func(r *UsersRep) ExistsByUserName(username string) bool {
-	_,exists := r.users[username]
+func (r *UsersRep) ExistsByUserName(username string) bool {
+	_, exists := r.users[username]
 
 	return exists
 }
 
-func(r *UsersRep) FindByUserID(userID string) (*User,error) {
+func (r *UsersRep) FindByUserID(userID string) (*User, error) {
 	for _, user := range r.users {
-		if user.User_id == userID{
-			return user,nil
+		if user.User_id == userID {
+			return user, nil
 		}
 	}
 
-	return nil, errors.New("Not Found")
+	return nil, fmt.Errorf("user not found %w", common_errors.ErrNotFound)
 }
 
-func(r *UsersRep) ChangeUserPassword(userID string,newPassword string) error {
+func (r *UsersRep) ChangeUserPassword(userID string, newPassword string) error {
 
-	newHashPassword,err := hashpassword.Hash(newPassword)
+	newHashPassword, err := hashpassword.Hash(newPassword)
 	if err != nil {
-		return err 
+		return err
 	}
 
-	user,err := r.FindByUserID(userID)
+	user, err := r.FindByUserID(userID)
 	if err != nil {
-		return err 
+		return err
 	}
 
 	user.HashPassword = newHashPassword
 
-	return nil 
+	return nil
 }
 
-func(r *UsersRep) DeleteUser(userID string) error {
+func (r *UsersRep) DeleteUser(userID string) error {
 
 	for _, user := range r.users {
-		if user.User_id == userID{
-			delete(r.users,userID)
+		if user.User_id == userID {
+			delete(r.users, userID)
 		}
 	}
 
-	return nil 
+	return nil
 }
