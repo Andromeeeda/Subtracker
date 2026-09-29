@@ -109,3 +109,14 @@ func (r *SubRepository) DeleteSub(userID string, id int) error {
 
 	return nil
 }
+
+func(r *SubRepository) DeleteAllSubByUser(userID string) error {
+
+	for subId,sub := range r.subscriptions {
+		if sub.User_id == userID{
+			delete(r.subscriptions,subId)
+		}
+	}
+
+	return nil 
+}

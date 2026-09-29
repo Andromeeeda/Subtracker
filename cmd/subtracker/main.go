@@ -15,22 +15,30 @@ import (
 	userservice "github.com/Andromeeeda/Subtracker/internal/features/users/service/user_service"
 	user_handlers "github.com/Andromeeeda/Subtracker/internal/features/users/transport/http/handlers"
 	"github.com/gorilla/mux"
+	"go.uber.org/zap"
 )
 
 func main() {
 	fmt.Println("Hello subtracker!")
 
+	logger, _ := zap.NewDevelopment()
+	defer logger.Sync()
+	sugar := logger.Sugar()
+	sugar.Info("starting subtracker server")
+
 	router := mux.NewRouter()
+	router.Use(middleware.Logging(sugar))
 
 	SubRep := subrep.NewSubRep()
 	SubService := service.NewSubService(SubRep)
 	SubHandler := subscriptionhandlers.NewSubHandler(SubService)
 
-	UserRep := usersrepository.NewUsersRep() 
-	UserService := userservice.NewUserService(UserRep)
-	UserHandler := user_handlers.NewUserHandler(UserService)
 
 	SessionStore := sessionstorage.NewSessionStorage()
+
+	UserRep := usersrepository.NewUsersRep() 
+	UserService := userservice.NewUserService(UserRep,SessionStore,SubRep)
+	UserHandler := user_handlers.NewUserHandler(UserService)
 
 	AuthService := authservice.NewAuthService(UserRep,SessionStore)
 	AuthHandler := authhandlers.NewAuthHandler(AuthService)

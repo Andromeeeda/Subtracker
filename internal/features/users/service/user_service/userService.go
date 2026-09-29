@@ -1,6 +1,7 @@
 package userservice
 
 import (
+	sessionstorage "github.com/Andromeeeda/Subtracker/internal/features/autentifications/sessionStorage"
 	usersrepository "github.com/Andromeeeda/Subtracker/internal/features/users/repository/users_rep"
 	hashpassword "github.com/Andromeeeda/Subtracker/pkg/HashPassword"
 )
@@ -14,13 +15,21 @@ type UserRep interface {
 	DeleteUser(userID string) error
 }
 
-type UserService struct {
-	userRep UserRep
+type SubRep interface {
+	DeleteAllSubByUser(userID string) error
 }
 
-func NewUserService(userRep UserRep) *UserService {
+type UserService struct {
+	userRep  UserRep
+	sessions *sessionstorage.SessionStorage
+	subRep SubRep
+}
+
+func NewUserService(userRep UserRep, sessions *sessionstorage.SessionStorage,subRep SubRep) *UserService {
 	return &UserService{
-		userRep: userRep,
+		userRep:  userRep,
+		sessions: sessions,
+		subRep: subRep,
 	}
 }
 
@@ -51,7 +60,7 @@ func (s *UserService) ChangeUserPassword(userID string, currentPassword string, 
 	return nil
 }
 
-func (s *UserService) DeleteUser(userID string,password string) error {
+func (s *UserService) DeleteUser(userID string, password string) error {
 
 	user, err := s.userRep.FindByUserID(userID)
 	if err != nil {
@@ -62,7 +71,14 @@ func (s *UserService) DeleteUser(userID string,password string) error {
 		return err
 	}
 
+	
+	if err := s.sessions.DeleteSession(userID); err != nil {
+		return err
+	}
+
+	s.subRep.DeleteAllSubByUser(userID)
+	
 	s.userRep.DeleteUser(userID)
 
-	return nil 
+	return nil
 }
