@@ -1,4 +1,4 @@
-package errors
+package common_errors
 
 import (
 	"encoding/json"

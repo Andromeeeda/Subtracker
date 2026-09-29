@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Andromeeeda/Subtracker/internal/core/errors"
+	"github.com/Andromeeeda/Subtracker/internal/core/errors/common"
 	"github.com/Andromeeeda/Subtracker/internal/core/transport/http/middleware"
 	"github.com/gorilla/mux"
 )
@@ -38,39 +38,39 @@ func (h *SubHandler) ChangeSub(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		errDto := &errors.ErrorsDTO{
+		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),
 			Time:  time.Now(),
 		}
 
 		fmt.Println("Error!", errDto)
-		http.Error(w, errors.ErrorsDtoToString(errDto), http.StatusBadRequest)
+		http.Error(w, common_errors.ErrorsDtoToString(errDto), http.StatusBadRequest)
 
 		return
 	}
 
 	var changeSub ChangeSubRequest
 	if err := json.NewDecoder(r.Body).Decode(&changeSub); err != nil {
-		errDto := &errors.ErrorsDTO{
+		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),
 			Time:  time.Now(),
 		}
 
 		fmt.Println("Error!", errDto)
-		http.Error(w, errors.ErrorsDtoToString(errDto), http.StatusBadRequest)
+		http.Error(w, common_errors.ErrorsDtoToString(errDto), http.StatusBadRequest)
 
 		return
 	}
 
-	ChangeSub, err := h.subService.ChangeSub(userID,id, &changeSub.Title, &changeSub.Cost, &changeSub.Date)
+	ChangeSub, err := h.subService.ChangeSub(userID, id, &changeSub.Title, &changeSub.Cost, &changeSub.Date)
 	if err != nil {
-		errDto := &errors.ErrorsDTO{
+		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),
 			Time:  time.Now(),
 		}
 
 		fmt.Println("Error!", errDto)
-		http.Error(w, errors.ErrorsDtoToString(errDto), http.StatusNotFound)
+		http.Error(w, common_errors.ErrorsDtoToString(errDto), http.StatusNotFound)
 
 		return
 	}

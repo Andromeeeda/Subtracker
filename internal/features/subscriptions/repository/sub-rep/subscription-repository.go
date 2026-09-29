@@ -1,8 +1,9 @@
 package subrep
 
 import (
-	"errors"
+	"fmt"
 
+	common_errors "github.com/Andromeeeda/Subtracker/internal/core/errors/common"
 	subrep "github.com/Andromeeeda/Subtracker/internal/features/subscriptions/repository"
 )
 
@@ -23,7 +24,7 @@ func (r *SubRepository) AddSubscription(userID string, title string, cost float6
 	//Проверка на уникальность по названию
 	for _, s := range r.subscriptions {
 		if s.Title == title && s.User_id == userID {
-			return nil, errors.New("subscription with this title already exist!")
+			return nil, fmt.Errorf("subscription with this title already exist %w", common_errors.ErrConflict)
 		}
 	}
 
@@ -58,11 +59,11 @@ func (r *SubRepository) GetAllSub(userID string) []*subrep.SubscriptionModel {
 func (r *SubRepository) GetSubscription(userID string, id int) (*subrep.SubscriptionModel, error) {
 	sub, ok := r.subscriptions[id]
 	if !ok {
-		return nil, errors.New("Not found")
+		return nil, fmt.Errorf("subscription not found %w", common_errors.ErrNotFound)
 	}
 
 	if sub.User_id != userID {
-		return nil, errors.New("Not found")
+		return nil, fmt.Errorf("subscription not found %w", common_errors.ErrNotFound)
 	}
 
 	return sub, nil
@@ -72,11 +73,11 @@ func (r *SubRepository) ChangeSub(userID string, id int, title *string, cost *fl
 
 	m, ok := r.subscriptions[id]
 	if !ok {
-		return nil, errors.New("Not found")
+		return nil, fmt.Errorf("subscription not found %w", common_errors.ErrNotFound)
 	}
 
 	if m.User_id != userID {
-		return nil, errors.New("Not found")
+		return nil, fmt.Errorf("subscription not found %w", common_errors.ErrNotFound)
 	}
 
 	if title != nil {
@@ -97,14 +98,25 @@ func (r *SubRepository) ChangeSub(userID string, id int, title *string, cost *fl
 func (r *SubRepository) DeleteSub(userID string, id int) error {
 	sub, ok := r.subscriptions[id]
 	if !ok {
-		return errors.New("Not Found")
+		return fmt.Errorf("subscription not found %w", common_errors.ErrNotFound)
 	}
 
 	if sub.User_id != userID {
-		return errors.New("Not Found")
+		return fmt.Errorf("subscription not found %w", common_errors.ErrNotFound)
 	}
 
 	delete(r.subscriptions, id)
 
 	return nil
+}
+
+func(r *SubRepository) DeleteAllSubByUser(userID string) error {
+
+	for subId,sub := range r.subscriptions {
+		if sub.User_id == userID{
+			delete(r.subscriptions,subId)
+		}
+	}
+
+	return nil 
 }

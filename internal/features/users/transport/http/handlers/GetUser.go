@@ -2,11 +2,12 @@ package userhandlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/Andromeeeda/Subtracker/internal/core/errors"
+	common_errors "github.com/Andromeeeda/Subtracker/internal/core/errors/common"
 	"github.com/Andromeeeda/Subtracker/internal/core/transport/http/middleware"
 )
 
@@ -25,13 +26,18 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	username, err := h.userService.GetUser(userID)
 	if err != nil {
-		errDto := &errors.ErrorsDTO{
+		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),
 			Time:  time.Now(),
 		}
 
-		fmt.Println("Error!", errDto)
-		http.Error(w, errors.ErrorsDtoToString(errDto), http.StatusUnauthorized)
+		if errors.Is(err, common_errors.ErrNotFound) {
+			fmt.Println("Error!", errDto)
+			http.Error(w, common_errors.ErrorsDtoToString(errDto), http.StatusNotFound)
+		} else {
+			fmt.Println("Error!", errDto)
+			http.Error(w, common_errors.ErrorsDtoToString(errDto), http.StatusInternalServerError)
+		}
 
 		return
 	}
