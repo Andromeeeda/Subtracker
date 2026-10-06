@@ -18,7 +18,7 @@ type CreateSubRequest struct {
 }
 
 type CreateSubResponce struct {
-	ID    int     `json:"uuid"`
+	ID    int     `json:"id"`
 	Title string  `json:"title"`
 	Cost  float64 `json:"cost"`
 	Date  int     `json:"date"`
