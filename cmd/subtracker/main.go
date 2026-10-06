@@ -16,6 +16,7 @@ import (
 	user_handlers "github.com/Andromeeeda/Subtracker/internal/features/users/transport/http/handlers"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
+	"github.com/gorilla/handlers"
 )
 
 func main() {
@@ -26,6 +27,12 @@ func main() {
 	sugar := logger.Sugar()
 	sugar.Info("starting subtracker server")
 
+	corsHandler := handlers.CORS(
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowedMethods([]string{"GET", "POST", "PATCH", "DELETE"}),
+		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
+	)
+
 	router := mux.NewRouter()
 	router.Use(middleware.Logging(sugar))
 
@@ -33,14 +40,13 @@ func main() {
 	SubService := service.NewSubService(SubRep)
 	SubHandler := subscriptionhandlers.NewSubHandler(SubService)
 
-
 	SessionStore := sessionstorage.NewSessionStorage()
 
-	UserRep := usersrepository.NewUsersRep() 
-	UserService := userservice.NewUserService(UserRep,SessionStore,SubRep)
+	UserRep := usersrepository.NewUsersRep()
+	UserService := userservice.NewUserService(UserRep, SessionStore, SubRep)
 	UserHandler := user_handlers.NewUserHandler(UserService)
 
-	AuthService := authservice.NewAuthService(UserRep,SessionStore)
+	AuthService := authservice.NewAuthService(UserRep, SessionStore)
 	AuthHandler := authhandlers.NewAuthHandler(AuthService)
 
 	SubRouter := router.PathPrefix("/subscriptions").Subrouter()
@@ -62,7 +68,7 @@ func main() {
 	userRouter.Path("/me/password").Methods("POST").HandlerFunc(UserHandler.ChangeUserPassword)
 	userRouter.Path("/me").Methods("DELETE").HandlerFunc(UserHandler.DeleteUser)
 
-	if err := http.ListenAndServe(":8081", router); err != nil {
+	if err := http.ListenAndServe(":8081", corsHandler(router)); err != nil {
 		fmt.Println("fail to listen server")
 	}
 
