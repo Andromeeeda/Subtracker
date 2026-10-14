@@ -13,8 +13,8 @@ import (
 )
 
 func (h *SubHandler) DeleteSub(w http.ResponseWriter, r *http.Request) {
-
-	userID, ok := middleware.UserIDFromContext(r.Context())
+	ctx := r.Context()
+	userID, ok := middleware.UserIDFromContext(ctx)
 	if !ok {
 		http.Error(w, "unathorized", http.StatusUnauthorized)
 		return
@@ -36,7 +36,7 @@ func (h *SubHandler) DeleteSub(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.subService.DeleteSub(userID,id); err != nil {
+	if err := h.subService.DeleteSub(ctx,userID,id); err != nil {
 		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),
 			Time:  time.Now(),

@@ -1,6 +1,7 @@
 package usersrepository
 
 import (
+	"context"
 	"fmt"
 
 	common_errors "github.com/Andromeeeda/Subtracker/internal/core/errors/common"
@@ -17,7 +18,7 @@ func NewUsersRep() *UsersRep {
 	}
 }
 
-func (r *UsersRep) Create(user *User) error {
+func (r *UsersRep) Create(ctx context.Context,user *User) error {
 
 	if _, exists := r.users[user.Username]; exists {
 		return fmt.Errorf("username already exists %w", common_errors.ErrConflict)
@@ -28,19 +29,13 @@ func (r *UsersRep) Create(user *User) error {
 
 }
 
-func (r *UsersRep) FindByUSersName(username string) (*User, error) {
+func (r *UsersRep) FindByUSersName(ctx,username string) (*User, error) {
 	user, ok := r.users[username]
 	if !ok {
 		return nil, fmt.Errorf("Error while receiving user data. Incorrect username %w", common_errors.ErrBadRequest)
 	}
 
 	return user, nil
-}
-
-func (r *UsersRep) ExistsByUserName(username string) bool {
-	_, exists := r.users[username]
-
-	return exists
 }
 
 func (r *UsersRep) FindByUserID(userID string) (*User, error) {
@@ -70,7 +65,7 @@ func (r *UsersRep) ChangeUserPassword(userID string, newPassword string) error {
 	return nil
 }
 
-func (r *UsersRep) DeleteUser(userID string) error {
+func (r *UsersRep) DeleteUser(ctx context.Context,userID string) error {
 
 	for _, user := range r.users {
 		if user.User_id == userID {

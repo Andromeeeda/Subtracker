@@ -24,7 +24,9 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username, err := h.userService.GetUser(userID)
+	ctx := r.Context()
+
+	username, err := h.userService.GetUser(ctx,userID)
 	if err != nil {
 		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),

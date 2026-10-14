@@ -1,9 +1,11 @@
 package userhandlers
 
+import "context"
+
 type UserService interface {
-	GetUser(userID string) (string, error)
-	ChangeUserPassword(userID string,currentPassword string,newPassword string) error
-	DeleteUser(userID string,password string) error
+	GetUser(ctx context.Context, userID string) (string, error)
+	ChangeUserPassword(ctx context.Context,userID string, currentPassword string, newPassword string) error
+	DeleteUser(ctx context.Context,userID string, password string) error
 }
 
 type UserHandler struct {

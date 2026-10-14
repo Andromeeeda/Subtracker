@@ -17,6 +17,8 @@ type RegisterRequest struct {
 
 func (h *AuthHAndler) Register(w http.ResponseWriter, r *http.Request) {
 
+	ctx := r.Context()
+
 	var registerRequest RegisterRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&registerRequest); err != nil {
@@ -31,7 +33,7 @@ func (h *AuthHAndler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.authService.Register(registerRequest.Username, registerRequest.Password); err != nil {
+	if err := h.authService.Register(ctx,registerRequest.Username, registerRequest.Password); err != nil {
 		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),
 			Time:  time.Now(),

@@ -2,12 +2,13 @@ package subscriptionhandlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/Andromeeeda/Subtracker/internal/core/errors/common"
+	common_errors "github.com/Andromeeeda/Subtracker/internal/core/errors/common"
 	"github.com/Andromeeeda/Subtracker/internal/core/transport/http/middleware"
 	"github.com/gorilla/mux"
 )
@@ -20,8 +21,8 @@ type GetSubResponce struct {
 }
 
 func (h *SubHandler) GetSub(w http.ResponseWriter, r *http.Request) {
-
-	userID, ok := middleware.UserIDFromContext(r.Context())
+	ctx := r.Context()
+	userID, ok := middleware.UserIDFromContext(ctx)
 	if !ok {
 		http.Error(w, "unathorized", http.StatusUnauthorized)
 		return
@@ -43,15 +44,20 @@ func (h *SubHandler) GetSub(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sub, err := h.subService.GetSub(userID,id)
+	sub, err := h.subService.GetSub(ctx, userID, id)
 	if err != nil {
 		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),
 			Time:  time.Now(),
 		}
 
-		fmt.Println("Error!", errDto)
-		http.Error(w,common_errors.ErrorsDtoToString(errDto), http.StatusNotFound)
+		if errors.Is(err, common_errors.ErrNotFound) {
+			fmt.Println("Error!", errDto)
+			http.Error(w, common_errors.ErrorsDtoToString(errDto), http.StatusNotFound)
+		} else {
+			fmt.Println("Error!", errDto)
+			http.Error(w, common_errors.ErrorsDtoToString(errDto), http.StatusInternalServerError)
+		}
 
 		return
 	}

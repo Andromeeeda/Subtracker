@@ -1,16 +1,19 @@
 package service
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/Andromeeeda/Subtracker/internal/core/domain"
 	subrep "github.com/Andromeeeda/Subtracker/internal/features/subscriptions/repository"
 )
 
 type SubRepository interface {
-	AddSubscription(userID string,title string, cost float64, date int) (*subrep.SubscriptionModel, error)
-	GetAllSub(userID string) []*subrep.SubscriptionModel
-	GetSubscription(userID string, id int) (*subrep.SubscriptionModel,error)
-	ChangeSub(userID string,id int, title*string,cost *float64,date *int) (*subrep.SubscriptionModel,error)
-	DeleteSub(userID string,id int) error 
+	AddSubscription(ctx context.Context, userID string, title string, cost float64, date int) (*subrep.SubscriptionModel, error)
+	GetAllSub(ctx context.Context, userID string) ([]*subrep.SubscriptionModel,error)
+	GetSubscription(ctx context.Context, userID string, id int) (*subrep.SubscriptionModel, error)
+	ChangeSub(ctx context.Context, userID string, id int, title *string, cost *float64, date *int) (*subrep.SubscriptionModel, error)
+	DeleteSub(ctx context.Context, userID string, id int) error
 }
 
 type SubService struct {
@@ -23,73 +26,74 @@ func NewSubService(subRepository SubRepository) *SubService {
 	}
 }
 
-func (s *SubService) CreateSubscription(userID string,title string, cost float64, date int) (*domain.Subscription, error) {
+func (s *SubService) CreateSubscription(ctx context.Context, userID string, title string, cost float64, date int) (*domain.Subscription, error) {
 
-	sub, err := s.subRepository.AddSubscription(userID,title, cost, date)
+	sub, err := s.subRepository.AddSubscription(ctx, userID, title, cost, date)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("err: %w", err)
 	}
 
 	return &domain.Subscription{
-		ID:    sub.ID,
+		ID:      sub.ID,
 		User_id: userID,
-		Title: title,
-		Cost:  cost,
-		Date:  date,
+		Title:   title,
+		Cost:    cost,
+		Date:    date,
 	}, nil
 
 }
 
-func (s *SubService) GetAllSub(userID string) []*domain.Subscription {
+func (s *SubService) GetAllSub(ctx context.Context,userID string) ([]*domain.Subscription,error) {
 
-	models := s.subRepository.GetAllSub(userID)
+	models,err := s.subRepository.GetAllSub(ctx,userID)
+	if err != nil {
+		return nil,fmt.Errorf("GetAllSub service error: %w",err)
+	}
 
-	result := make([]*domain.Subscription,0,len(models))
+	result := make([]*domain.Subscription, 0, len(models))
 
 	for _, m := range models {
 		result = append(result, &domain.Subscription{
-			ID:    m.ID,
+			ID:      m.ID,
 			User_id: userID,
-			Title: m.Title,
-			Cost:  m.Cost,
-			Date:  m.Date,
+			Title:   m.Title,
+			Cost:    m.Cost,
+			Date:    m.Date,
 		})
 	}
-	return result
+	return result,nil 
 
 }
 
-func (s* SubService) GetSub(userID string,id int) (*domain.Subscription,error) {
+func (s *SubService) GetSub(ctx context.Context,userID string, id int) (*domain.Subscription, error) {
 
-	sub,err := s.subRepository.GetSubscription(userID,id)
+	sub, err := s.subRepository.GetSubscription(ctx,userID, id)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	Sub := toDomain(sub)
 
-	return Sub,nil 
+	return Sub, nil
 
 }
 
-func(s *SubService) ChangeSub(userID string,id int,title *string,cost *float64,date *int) (*domain.Subscription,error){
+func (s *SubService) ChangeSub(ctx context.Context,userID string, id int, title *string, cost *float64, date *int) (*domain.Subscription, error) {
 
-	ChSub,err :=  s.subRepository.ChangeSub(userID,id,title,cost,date)
+	ChSub, err := s.subRepository.ChangeSub(ctx,userID, id, title, cost, date)
 	if err != nil {
-		return nil,err 
+		return nil, err
 	}
 
 	ChSubDomain := toDomain(ChSub)
 
-	return ChSubDomain,nil 
+	return ChSubDomain, nil
 }
 
-func(s *SubService) DeleteSub(userID string,id int) error {
-	if err := s.subRepository.DeleteSub(userID,id); err != nil {
-		return err 
+func (s *SubService) DeleteSub(ctx context.Context,userID string, id int) error {
+	if err := s.subRepository.DeleteSub(ctx,userID, id); err != nil {
+		return err
 	}
 
-	return nil 
+	return nil
 }
-
-

@@ -1,40 +1,43 @@
 package userservice
 
 import (
+	"context"
+	"fmt"
+
+	common_errors "github.com/Andromeeeda/Subtracker/internal/core/errors/common"
 	sessionstorage "github.com/Andromeeeda/Subtracker/internal/features/autentifications/sessionStorage"
 	usersrepository "github.com/Andromeeeda/Subtracker/internal/features/users/repository/users_rep"
 	hashpassword "github.com/Andromeeeda/Subtracker/pkg/HashPassword"
 )
 
 type UserRep interface {
-	Create(user *usersrepository.User) error
-	FindByUSersName(username string) (*usersrepository.User, error)
-	ExistsByUserName(username string) bool
-	FindByUserID(userID string) (*usersrepository.User, error)
-	ChangeUserPassword(userID string, newPassword string) error
-	DeleteUser(userID string) error
+	Create(ctx context.Context, user *usersrepository.User) error
+	FindByUSersName(ctx context.Context, username string) (*usersrepository.User, error)
+	GetByUserID(ctx context.Context, userID string) (*usersrepository.User, error)
+	ChangeUserPassword(ctx context.Context, userID string, newPassword string) error
+	DeleteUser(ctx context.Context, userID string) error
 }
 
 type SubRep interface {
-	DeleteAllSubByUser(userID string) error
+	DeleteAllSubByUser(ctx context.Context,userID string) error
 }
 
 type UserService struct {
 	userRep  UserRep
 	sessions *sessionstorage.SessionStorage
-	subRep SubRep
+	subRep   SubRep
 }
 
-func NewUserService(userRep UserRep, sessions *sessionstorage.SessionStorage,subRep SubRep) *UserService {
+func NewUserService(userRep UserRep, sessions *sessionstorage.SessionStorage, subRep SubRep) *UserService {
 	return &UserService{
 		userRep:  userRep,
 		sessions: sessions,
-		subRep: subRep,
+		subRep:   subRep,
 	}
 }
 
-func (s *UserService) GetUser(userID string) (string, error) {
-	user, err := s.userRep.FindByUserID(userID)
+func (s *UserService) GetUser(ctx context.Context, userID string) (string, error) {
+	user, err := s.userRep.GetByUserID(ctx, userID)
 	if err != nil {
 		return "", err
 	}
@@ -42,9 +45,9 @@ func (s *UserService) GetUser(userID string) (string, error) {
 	return user.Username, nil
 }
 
-func (s *UserService) ChangeUserPassword(userID string, currentPassword string, newPassword string) error {
+func (s *UserService) ChangeUserPassword(ctx context.Context, userID string, currentPassword string, newPassword string) error {
 
-	user, err := s.userRep.FindByUserID(userID)
+	user, err := s.userRep.GetByUserID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -53,32 +56,36 @@ func (s *UserService) ChangeUserPassword(userID string, currentPassword string, 
 		return err
 	}
 
-	if err := s.userRep.ChangeUserPassword(userID, newPassword); err != nil {
+	newHashPassword, err := hashpassword.Hash(newPassword)
+	if err != nil {
+		return err
+	}
+
+	if err := s.userRep.ChangeUserPassword(ctx, userID, newHashPassword); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *UserService) DeleteUser(userID string, password string) error {
+func (s *UserService) DeleteUser(ctx context.Context,userID string, password string) error {
 
-	user, err := s.userRep.FindByUserID(userID)
+	user, err := s.userRep.GetByUserID(ctx,userID)
 	if err != nil {
 		return err
 	}
 
 	if err := hashpassword.CheckHashPassword(user.HashPassword, password); err != nil {
-		return err
+		return fmt.Errorf("hashPassword error: %w",common_errors.ErrBadRequest)
 	}
 
-	
 	if err := s.sessions.DeleteSession(userID); err != nil {
 		return err
 	}
 
-	s.subRep.DeleteAllSubByUser(userID)
-	
-	s.userRep.DeleteUser(userID)
+	s.subRep.DeleteAllSubByUser(ctx,userID)
+
+	s.userRep.DeleteUser(ctx,userID)
 
 	return nil
 }

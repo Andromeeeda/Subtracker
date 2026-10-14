@@ -1,33 +1,28 @@
 package authservice
 
 import (
-	"fmt"
+	"context"
 
-	common_errors "github.com/Andromeeeda/Subtracker/internal/core/errors/common"
 	sessionstorage "github.com/Andromeeeda/Subtracker/internal/features/autentifications/sessionStorage"
 	usersrepository "github.com/Andromeeeda/Subtracker/internal/features/users/repository/users_rep"
+	userservice "github.com/Andromeeeda/Subtracker/internal/features/users/service/user_service"
 	hashpassword "github.com/Andromeeeda/Subtracker/pkg/HashPassword"
 	"github.com/google/uuid"
 )
 
 type AuthService struct {
-	usersRep     *usersrepository.UsersRep
+	usersRep     userservice.UserRep
 	sessionStore *sessionstorage.SessionStorage
 }
 
-func NewAuthService(usersRep *usersrepository.UsersRep, sessionStore *sessionstorage.SessionStorage) *AuthService {
+func NewAuthService(usersRep userservice.UserRep, sessionStore *sessionstorage.SessionStorage) *AuthService {
 	return &AuthService{
 		usersRep:     usersRep,
 		sessionStore: sessionStore,
 	}
 }
 
-func (s *AuthService) Register(username string, userPassword string) error {
-
-	check := s.usersRep.ExistsByUserName(username)
-	if check {
-		return fmt.Errorf("user already exist %w",common_errors.ErrConflict)
-	}
+func (s *AuthService) Register(ctx context.Context, username string, userPassword string) error {
 
 	HashPassword, err := hashpassword.Hash(userPassword)
 	if err != nil {
@@ -40,15 +35,15 @@ func (s *AuthService) Register(username string, userPassword string) error {
 		HashPassword: HashPassword,
 	}
 
-	if err := s.usersRep.Create(user); err != nil {
+	if err := s.usersRep.Create(ctx, user); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *AuthService) Login(username string, userPassword string) (string, error) {
-	user, err := s.usersRep.FindByUSersName(username)
+func (s *AuthService) Login(ctx context.Context, username string, userPassword string) (string, error) {
+	user, err := s.usersRep.FindByUSersName(ctx, username)
 	if err != nil {
 		return "", err
 	}

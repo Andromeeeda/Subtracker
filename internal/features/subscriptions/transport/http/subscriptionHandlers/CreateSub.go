@@ -25,8 +25,8 @@ type CreateSubResponce struct {
 }
 
 func (h *SubHandler) CreateSub(w http.ResponseWriter, r *http.Request) {
-
-	userID, ok := middleware.UserIDFromContext(r.Context())
+	ctx := r.Context()
+	userID, ok := middleware.UserIDFromContext(ctx)
 	if !ok {
 		http.Error(w, "unathorized", http.StatusUnauthorized)
 		return
@@ -47,7 +47,7 @@ func (h *SubHandler) CreateSub(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Subscription, err := h.subService.CreateSubscription(userID, createSubRequest.Title, createSubRequest.Cost, createSubRequest.Date)
+	Subscription, err := h.subService.CreateSubscription(ctx,userID, createSubRequest.Title, createSubRequest.Cost, createSubRequest.Date)
 	if err != nil {
 		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),

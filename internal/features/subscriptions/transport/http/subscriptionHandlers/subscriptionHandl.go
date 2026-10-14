@@ -1,13 +1,17 @@
 package subscriptionhandlers
 
-import "github.com/Andromeeeda/Subtracker/internal/core/domain"
+import (
+	"context"
+
+	"github.com/Andromeeeda/Subtracker/internal/core/domain"
+)
 
 type SubService interface {
-	CreateSubscription(userID string,title string,cost float64,date int) (*domain.Subscription,error)
-	GetAllSub(userID string) []*domain.Subscription
-	GetSub(userID string,id int) (*domain.Subscription,error)
-	ChangeSub(userID string,id int,title *string,cost *float64,date *int) (*domain.Subscription,error)
-	DeleteSub(userID string,id int) error
+	CreateSubscription(ctx context.Context, userID string, title string, cost float64, date int) (*domain.Subscription, error)
+	GetAllSub(ctx context.Context,userID string) ([]*domain.Subscription,error)
+	GetSub(ctx context.Context,userID string, id int) (*domain.Subscription, error)
+	ChangeSub(ctx context.Context,userID string, id int, title *string, cost *float64, date *int) (*domain.Subscription, error)
+	DeleteSub(ctx context.Context,userID string, id int) error
 }
 
 type SubHandler struct {
