@@ -13,7 +13,7 @@ func (r *SubPostgresRep) GetAllSub(ctx context.Context, userID string) ([]*subre
 
 	query := `
 	SELECT sub_id,user_id,title,cost,date
-	FROM subtracker.subscription 
+	FROM subtracker.subscriptions
 	WHERE user_id = $1
 	ORDER BY sub_id
 	`

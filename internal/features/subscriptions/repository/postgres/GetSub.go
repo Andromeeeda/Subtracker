@@ -17,8 +17,7 @@ func (r *SubPostgresRep) GetSubscription(ctx context.Context, userID string, id 
 	query := `
 	SELECT sub_id,user_id,title,cost,date 
 	FROM subtracker.subscriptions
-	WHERE user_id = $1 AND sub_id = $2
-	RETURNING sub_id,user_id,title,cost,date 
+	WHERE user_id = $1 AND sub_id = $2 
 	`
 
 	row := r.pool.QueryRow(ctx, query, userID, id)
