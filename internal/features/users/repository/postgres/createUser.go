@@ -13,16 +13,20 @@ func (r *UsersPostgresRep) Create(ctx context.Context, user *usersrepository.Use
 	
 	query := `INSERT INTO subtracker.users (username,hashPassword) 
 	VALUES ($1,$2)
-	RETURNING user_id,username;`
+	RETURNING user_id,username,hashPassword;`
 
 	row := r.pool.QueryRow(ctx, query, user.Username, user.HashPassword)
 	
 	var userModel UserModel
-	err := row.Scan(&userModel.Username,&userModel.HashPassword)
+	err := row.Scan(&userModel.User_id,&userModel.Username,&userModel.HashPassword)
 
 	if err != nil {
 		return fmt.Errorf("scan error: %w",err)
 	}
 
+	user.User_id = userModel.User_id 
+	user.Username = userModel.Username
+	user.HashPassword = userModel.HashPassword
+	
 	return nil 
 }

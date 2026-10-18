@@ -28,8 +28,12 @@ func (h *SubHandler) GetAllSub(w http.ResponseWriter, r *http.Request) {
 		return 
 	}
 
+	resp := &AllSubResponce {
+		Subscriptions: AllSub,
+	}
+
 	fmt.Println("All subscriptions are shown.")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(AllSub)
+	json.NewEncoder(w).Encode(resp)
 
 }
