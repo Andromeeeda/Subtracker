@@ -12,7 +12,7 @@ env-down:
 env-cleanup:
 	@read -p "Очистить все volume файлы окружения? Опасность утери данных.[y/N]: " ans; \
 	if [ "$$ans" = "y" ]; then \
-		docker compose down subtracker-postgres && \
+		docker compose down subtracker-postgres port-forwarder && \
 		sudo rm -rf out/pgdata && \
 		echo "Файлы окружения очищены"; \
 	else \
