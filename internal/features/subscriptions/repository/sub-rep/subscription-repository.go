@@ -1,6 +1,7 @@
 package subrep
 
 import (
+	"context"
 	"fmt"
 
 	common_errors "github.com/Andromeeeda/Subtracker/internal/core/errors/common"
@@ -19,7 +20,7 @@ func NewSubRep() *SubRepository {
 	}
 }
 
-func (r *SubRepository) AddSubscription(userID string, title string, cost float64, date int) (*subrep.SubscriptionModel, error) {
+func (r *SubRepository) AddSubscription(ctx context.Context,userID string, title string, cost float64, date int) (*subrep.SubscriptionModel, error) {
 
 	//Проверка на уникальность по названию
 	for _, s := range r.subscriptions {
@@ -43,7 +44,7 @@ func (r *SubRepository) AddSubscription(userID string, title string, cost float6
 	return sub, nil
 }
 
-func (r *SubRepository) GetAllSub(userID string) []*subrep.SubscriptionModel {
+func (r *SubRepository) GetAllSub(ctx context.Context,userID string) ([]*subrep.SubscriptionModel,error) {
 
 	result := make([]*subrep.SubscriptionModel, 0, len(r.subscriptions))
 
@@ -53,10 +54,10 @@ func (r *SubRepository) GetAllSub(userID string) []*subrep.SubscriptionModel {
 		}
 	}
 
-	return result
+	return result,nil 
 }
 
-func (r *SubRepository) GetSubscription(userID string, id int) (*subrep.SubscriptionModel, error) {
+func (r *SubRepository) GetSubscription(ctx context.Context,userID string, id int) (*subrep.SubscriptionModel, error) {
 	sub, ok := r.subscriptions[id]
 	if !ok {
 		return nil, fmt.Errorf("subscription not found %w", common_errors.ErrNotFound)
@@ -69,7 +70,7 @@ func (r *SubRepository) GetSubscription(userID string, id int) (*subrep.Subscrip
 	return sub, nil
 }
 
-func (r *SubRepository) ChangeSub(userID string, id int, title *string, cost *float64, date *int) (*subrep.SubscriptionModel, error) {
+func (r *SubRepository) ChangeSub(ctx context.Context,userID string, id int, title *string, cost *float64, date *int) (*subrep.SubscriptionModel, error) {
 
 	m, ok := r.subscriptions[id]
 	if !ok {
@@ -95,7 +96,7 @@ func (r *SubRepository) ChangeSub(userID string, id int, title *string, cost *fl
 	return m, nil
 }
 
-func (r *SubRepository) DeleteSub(userID string, id int) error {
+func (r *SubRepository) DeleteSub(ctx context.Context, userID string, id int) error {
 	sub, ok := r.subscriptions[id]
 	if !ok {
 		return fmt.Errorf("subscription not found %w", common_errors.ErrNotFound)
@@ -110,13 +111,13 @@ func (r *SubRepository) DeleteSub(userID string, id int) error {
 	return nil
 }
 
-func(r *SubRepository) DeleteAllSubByUser(userID string) error {
+func (r *SubRepository) DeleteAllSubByUser(ctx context.Context,userID string) error {
 
-	for subId,sub := range r.subscriptions {
-		if sub.User_id == userID{
-			delete(r.subscriptions,subId)
+	for subId, sub := range r.subscriptions {
+		if sub.User_id == userID {
+			delete(r.subscriptions, subId)
 		}
 	}
 
-	return nil 
+	return nil
 }

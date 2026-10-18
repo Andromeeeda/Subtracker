@@ -16,8 +16,8 @@ type DeleteUserRequest struct {
 }
 
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-
-	userID, ok := middleware.UserIDFromContext(r.Context())
+	ctx := r.Context()
+	userID, ok := middleware.UserIDFromContext(ctx)
 	if !ok {
 		http.Error(w, "unathorized", http.StatusUnauthorized)
 		return
@@ -37,7 +37,7 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.userService.DeleteUser(userID, deleteUser.Password); err != nil {
+	if err := h.userService.DeleteUser(ctx,userID, deleteUser.Password); err != nil {
 		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),
 			Time:  time.Now(),

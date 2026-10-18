@@ -14,17 +14,26 @@ type AllSubResponce struct {
 }
 
 func (h *SubHandler) GetAllSub(w http.ResponseWriter, r *http.Request) {
-
-	userID, ok := middleware.UserIDFromContext(r.Context())
+	ctx := r.Context()
+	userID, ok := middleware.UserIDFromContext(ctx)
 	if !ok {
 		http.Error(w, "unathorized", http.StatusUnauthorized)
 		return
 	}
 
-	AllSub := h.subService.GetAllSub(userID)
+	AllSub,err := h.subService.GetAllSub(ctx,userID)
+
+	if err != nil {
+		http.Error(w,err.Error(),http.StatusInternalServerError)
+		return 
+	}
+
+	resp := &AllSubResponce {
+		Subscriptions: AllSub,
+	}
 
 	fmt.Println("All subscriptions are shown.")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(AllSub)
+	json.NewEncoder(w).Encode(resp)
 
 }

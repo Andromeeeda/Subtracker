@@ -1,26 +1,30 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
+	core_postgres_pool "github.com/Andromeeeda/Subtracker/internal/core/repository/postgres/pool"
 	"github.com/Andromeeeda/Subtracker/internal/core/transport/http/middleware"
 	authservice "github.com/Andromeeeda/Subtracker/internal/features/autentifications/service/auth-service"
 	sessionstorage "github.com/Andromeeeda/Subtracker/internal/features/autentifications/sessionStorage"
 	authhandlers "github.com/Andromeeeda/Subtracker/internal/features/autentifications/transport/http/auth-handlers"
-	subrep "github.com/Andromeeeda/Subtracker/internal/features/subscriptions/repository/sub-rep"
+	subscription_repository_postgres "github.com/Andromeeeda/Subtracker/internal/features/subscriptions/repository/postgres"
 	"github.com/Andromeeeda/Subtracker/internal/features/subscriptions/service"
 	subscriptionhandlers "github.com/Andromeeeda/Subtracker/internal/features/subscriptions/transport/http/subscriptionHandlers"
-	usersrepository "github.com/Andromeeeda/Subtracker/internal/features/users/repository/users_rep"
+	users_repository_postgres "github.com/Andromeeeda/Subtracker/internal/features/users/repository/postgres"
 	userservice "github.com/Andromeeeda/Subtracker/internal/features/users/service/user_service"
 	user_handlers "github.com/Andromeeeda/Subtracker/internal/features/users/transport/http/handlers"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
-	"github.com/gorilla/handlers"
 )
 
 func main() {
 	fmt.Println("Hello subtracker!")
+
+	ctx := context.Background()
 
 	logger, _ := zap.NewDevelopment()
 	defer logger.Sync()
@@ -36,13 +40,19 @@ func main() {
 	router := mux.NewRouter()
 	router.Use(middleware.Logging(sugar))
 
-	SubRep := subrep.NewSubRep()
+	pool, err := core_postgres_pool.NewConnectionPool(ctx, core_postgres_pool.NewConfigMust())
+	if err != nil {
+		sugar.Fatal("failet to init postgres connection pool", zap.Error(err))
+	}
+	defer pool.Close()
+
+	SubRep := subscription_repository_postgres.NewSubPostgresRep(pool)
 	SubService := service.NewSubService(SubRep)
 	SubHandler := subscriptionhandlers.NewSubHandler(SubService)
 
 	SessionStore := sessionstorage.NewSessionStorage()
 
-	UserRep := usersrepository.NewUsersRep()
+	UserRep := users_repository_postgres.NewUsersPostgresRep(pool)
 	UserService := userservice.NewUserService(UserRep, SessionStore, SubRep)
 	UserHandler := user_handlers.NewUserHandler(UserService)
 

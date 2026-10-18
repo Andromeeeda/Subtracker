@@ -19,6 +19,8 @@ type LoginResponce struct {
 }
 
 func (h *AuthHAndler) Login(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	var loginRequest LoginRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&loginRequest); err != nil {
@@ -33,7 +35,7 @@ func (h *AuthHAndler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session_id,err := h.authService.Login(loginRequest.Username,loginRequest.Password)
+	session_id,err := h.authService.Login(ctx,loginRequest.Username,loginRequest.Password)
 	if err != nil {
 		errDto := &common_errors.ErrorsDTO{
 			Error: err.Error(),
