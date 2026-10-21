@@ -16,6 +16,9 @@ import (
 	users_repository_postgres "github.com/Andromeeeda/Subtracker/internal/features/users/repository/postgres"
 	userservice "github.com/Andromeeeda/Subtracker/internal/features/users/service/user_service"
 	user_handlers "github.com/Andromeeeda/Subtracker/internal/features/users/transport/http/handlers"
+	web_repository "github.com/Andromeeeda/Subtracker/internal/features/web/repository/file_system"
+	web_service "github.com/Andromeeeda/Subtracker/internal/features/web/service"
+	web_http_webHandler "github.com/Andromeeeda/Subtracker/internal/features/web/transport/http"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -77,6 +80,11 @@ func main() {
 	userRouter.Path("/me").Methods("GET").HandlerFunc(UserHandler.GetUser)
 	userRouter.Path("/me/password").Methods("POST").HandlerFunc(UserHandler.ChangeUserPassword)
 	userRouter.Path("/me").Methods("DELETE").HandlerFunc(UserHandler.DeleteUser)
+
+	WebRepository := web_repository.NewWebRepository()
+	WebService := web_service.NewWebService(WebRepository)
+	WebHandler := web_http_webHandler.NewWebHttpHandler(WebService)
+	router.Path("/").Methods("GET").HandlerFunc(WebHandler.GetMainPage)
 
 	if err := http.ListenAndServe(":8081", corsHandler(router)); err != nil {
 		fmt.Println("fail to listen server")
