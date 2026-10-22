@@ -57,3 +57,7 @@ migrate-action:
 
 service-run:
 	@go run cmd/subtracker/main.go
+
+
+subtracker-deploy:
+	@docker compose up -d --build subtracker 
