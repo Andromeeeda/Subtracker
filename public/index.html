@@ -243,7 +243,7 @@ footer.foot{text-align:center;font-size:var(--fs-xs);color:var(--muted);padding-
 
     <div class="api-line">
       <span>API base URL</span>
-      <input id="api-base-input" type="text" value="http://localhost:8081" spellcheck="false">
+      <input id="api-base-input" type="text" value="" spellcheck="false">
       <span>Your backend must allow CORS for this page's origin.</span>
     </div>
   </div>
@@ -394,12 +394,16 @@ footer.foot{text-align:center;font-size:var(--fs-xs);color:var(--muted);padding-
   var rowDraft = {};
   var addOpen = false;
 
+    var DEFAULT_API_BASE = (location.protocol === 'http:' || location.protocol === 'https:')
+    ? location.origin
+    : 'http://localhost:8081';
+
   function getApiBase(){
-    try { return (localStorage.getItem('subtracker_api_base') || 'http://localhost:8081').replace(/\/$/,''); }
-    catch(e){ return 'http://localhost:8081'; }
+    try { return (localStorage.getItem('subtracker_api_base') || DEFAULT_API_BASE).replace(/\/$/,''); }
+    catch(e){ return DEFAULT_API_BASE; }
   }
   function setApiBase(v){
-    var clean = (v||'').trim().replace(/\/$/,'') || 'http://localhost:8081';
+    var clean = (v||'').trim().replace(/\/$/,'') || DEFAULT_API_BASE;
     try { localStorage.setItem('subtracker_api_base', clean); } catch(e){}
     return clean;
   }
