@@ -61,3 +61,15 @@ service-run:
 
 subtracker-deploy:
 	@docker compose up -d --build subtracker 
+
+bot-up:
+	@docker compose up -d --build subtracker-bot
+
+bot-down:
+	@docker compose down subtracker-bot 
+
+bot-logs:
+	@docker compose logs -f subtracker-bot
+
+bot-restart:
+	@docker compose restart subtracker-bot
